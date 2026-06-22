@@ -1,0 +1,21 @@
+\section{Log and Event Pipeline}
+
+Loki stores logs differently from a traditional log system. Instead of indexing the full content
+of each line, it indexes labels and stores the log chunks compressed in object storage
+\cite{grafana-loki}. This keeps costs manageable at scale, but it requires some discipline: too
+few labels and queries become slow and broad; too many dynamic labels and the index grows in ways
+that hurt performance. Getting that balance right is part of the design work, not something that
+happens automatically.
+
+The deployment is not a minimal installation. It runs in distributed mode with gateways, separate
+ingesters and queriers, object storage, retention policies, rate limits, and caches
+\cite{lsst-it-k8s-cookbook}. This is not complexity for its own sake; during a real observing
+night, logs are only useful if they can be queried quickly and if the labels are good enough to
+narrow the search fast.
+
+The deeper point is that logs and metrics need to be designed together, not as separate systems
+that happen to run on the same cluster. A metric can tell you that latency spiked at a specific
+time. A log query can show what the service was reporting at that exact moment. A Kubernetes event
+can show that a pod was restarting. A network log can show a device dropping packets. None of those
+signals alone tells the full story. The operator needs the timeline, and building that timeline is
+only possible if the signals share a common labeling scheme and a common sense of time.

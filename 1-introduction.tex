@@ -1,0 +1,24 @@
+\section{Introduction}
+
+Rubin Observatory is being built to observe the sky repeatedly and rapidly. This creates a
+different type of operations problem. The observing system must work as one chain: telescope and
+camera, summit and base infrastructure, high-speed networks, storage systems, computing clusters,
+databases, control services, and data processing services. If one part of the chain is slow or
+becomes unstable, the effect can be seen elsewhere. A storage problem can look like an application
+problem. A network issue can look like a data-acquisition issue. A problem in a tiny computing
+process can affect a dashboard used by a scientist or an operator during the night.
+
+Hence we made the observability platform part of the observatory itself. We are observing the
+system that observes the sky. To conduct reliable scientific operations, we need to view the
+observatory with the same seriousness with which we view the sky.
+
+Rubin Observatory will push up to 10\,TB of data through the pipeline every night, triggering
+millions of alerts \cite{rubin-dm,rubin-keynumbers,rubin-alerts}. Therefore, decisions have to
+happen fast; there is no time to wait when the next image is arriving in 34 seconds. A minute lost
+chasing down a graph is a minute the telescope cannot get back.
+
+The observability system described in this paper is not a whiteboard architecture; it reflects
+years of operational experience, shaped by real incidents, evolving requirements, and the kind of
+hard-won knowledge that only comes from running infrastructure under pressure. The design decisions
+made capture not just what was built, but also how the team thinks about keeping environments
+consistent and ensuring changes are traceable \cite{lsst-it-k8s-cookbook}.

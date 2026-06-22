@@ -1,0 +1,31 @@
+\section{What Comes Next}
+
+The platform covers a lot of ground already, but there are clear directions where it needs to grow.
+
+\subsection{Connecting Infrastructure to Observing Conditions}
+
+Right now the platform is good at telling you what the infrastructure is doing. What it does not
+do well yet is connect that to what the observatory is doing: which part of the observing sequence
+is running, what the weather is, what state the camera and telescope are in, whether a calibration
+is happening or a filter just changed. Some of that context should come in as labels. Some of it
+may work better as events on a shared timeline. Either way, an operator trying to understand why
+something degraded at a specific moment needs both views together, not separately.
+
+\subsection{Tracing}
+
+Metrics and logs cover most situations well, but there are cases---particularly in pipelines that
+cross multiple services, queues, and storage systems---where it is hard to find exactly where a
+request started failing. Distributed tracing can help with that \cite{opentelemetry-traces}. It is
+not something to add everywhere, because it comes with instrumentation overhead and more data to
+store, but in the right places it could significantly reduce the time spent finding the first
+failing boundary.
+
+\subsection{AI-Assisted Analysis}
+
+One recent step that is already showing promise is enabling API access to Loki for developers
+across the observatory. What started as a practical decision has opened up uses that go well beyond
+what the dashboards were designed for. Teams are already building tools that use AI to analyze log
+patterns, surface anomalies, and find correlations that would be extremely difficult to catch by
+eye. The early results have been impressive. This is still the beginning, and it is hard to predict
+exactly where it goes, but the direction is clear: when the data is accessible and the labels are
+good, people find ways to ask questions the platform was never explicitly built to answer.

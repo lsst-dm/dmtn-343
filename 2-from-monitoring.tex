@@ -1,0 +1,48 @@
+\section{From Monitoring to Observability}
+
+A traditional monitoring system usually starts with simple questions. Is the service up? Is the
+disk full? Is the CPU high? These questions are necessary, but they are not enough for a facility
+like Rubin. Observability enables understanding of a system's internal behavior from the signals it
+emits. In Kubernetes, observability is typically built from metrics, logs, and traces, along with
+the tools that make them usable for operators \cite{kubernetes-observability}.
+
+The practical difference is important. Monitoring can tell us that an alert pipeline is slow.
+Observability should help us decide whether the reason is the Kafka broker, the network, the
+storage layer, an overloaded Kubernetes node, an ingress problem, a database, or something related
+to the observing sequence. Monitoring can indicate that a pod has restarted; observability should
+help us understand what changed around that time, who was affected, and what to check next.
+
+Our approach is also a journey. The current platform is not the first iteration we tried, and it
+will not be the last. The important part is that the platform became more reproducible and easier
+to inspect over time.
+
+At the beginning, we did what most teams do: we installed Icinga and set it up for basic up/down
+checks. It was a reasonable first step, but it did not take long to realize that a platform of this
+complexity could not be understood solely through availability probes. We could see things were
+failing, but we had no insight into why.
+
+Among the team, we had backgrounds with Nagios, Zabbix, Zenoss, and even HP OpenView, and more,
+but none of those felt like the right direction. We decided that open-source tools were the right
+choice, not because they are free of cost, but because they can be operated, modified, and
+connected to the rest of the observatory without vendor lock-in.
+
+We knew we needed outside help to build a modern observability stack, so we hired a contractor.
+One of their consultants was an active maintainer of Prometheus, which gave us confidence that we
+were talking to the right people.
+
+We wrote down our requirements and handed them over. What we learned over the following months is
+that our environment is genuinely unusual. Our components come from many different vendors and do
+not follow any standard pattern. That made everything slower and harder to implement than either
+side expected. It took close to two years before the contractor delivered something we could call
+substantial. Even then, we were never happy with the logging side. They had gone with OpenSearch,
+and while we understood the reasoning, it never felt like a good fit for us. It was not well
+integrated with Grafana, and the resource consumption was hard to justify. The dashboards were also
+a source of friction. We eventually came to understand that part of the problem was our own
+requirements; we had asked for dashboards built around a preconceived idea of what should be shown,
+when in reality dashboards need to be driven by what is actually happening in the infrastructure,
+not the other way around.
+
+When the contract ended, we took the chance to redo the logging from scratch. We picked Loki,
+mostly because it is part of the Grafana Labs ecosystem and fits naturally with everything else we
+were already running. That choice felt like the moment we stopped working around someone else's
+observability architecture and started building something that actually made sense for us.

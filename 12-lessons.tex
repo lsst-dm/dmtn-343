@@ -1,0 +1,40 @@
+\section{Lessons Learned}
+
+\textbf{Observability is a practice, not an installation.} The dashboards, rules, and labels that
+make sense today will not all make sense in six months. The system changes, the questions change,
+and the platform has to follow. Treating it as something you set up once and leave alone is how it
+stops being useful.
+
+\textbf{GitOps gives the platform memory} \cite{lsst-it-k8s-cookbook}. When a dashboard changes,
+there is a reason, a review, and a record. When an alert is added or removed, the decision is
+visible to anyone who looks. That history turns out to be more valuable than it seems at the time,
+especially after an incident, when understanding what changed and why is exactly the question you
+need to answer.
+
+\textbf{Labels are design decisions, not metadata}
+\cite{prometheus-operator,grafana-loki}. Good labels make it possible to correlate signals across
+systems. Bad labels make queries slow, expensive, or just confusing. Label discipline is an
+engineering interface between teams, and it deserves the same kind of care as an API.
+
+\textbf{Seeking help from a contractor is always a good practice} when there is uncertainty about
+how to move forward; however, the contractor needs very specific instructions on what to do. That
+is not simple when there is little knowledge of the tools' capacity. It feels like another
+contractor is needed to define the requirements to be delivered to the observability contractor.
+The most reasonable approach is to give some liberty to the contractor to recommend what is best
+based on their experience while maintaining very tight control over the project's progress. There
+will be many situations in which requirements will be changed, added, or removed, and the
+contractor needs to be aware of this. One decision that made a real difference was asking the
+contractor to work alongside us rather than just deliver something. The co-work sessions gave the
+team a chance to absorb how the platform was being built, why certain decisions were made, and
+where the tricky parts were. By the time the contract ended, we were not starting from scratch; we
+understood what we had inherited and were ready to take it further. That knowledge transfer was
+probably worth as much as the platform itself.
+
+\textbf{Dashboard work is human work.} The best dashboard is not the one with the most panels. It
+is the one that helps the right person answer a question when they are tired, under pressure, and
+do not have time to think. That is a harder design problem than it looks.
+
+\textbf{Open source is a good fit when the team is ready to own it.} The transparency and
+flexibility are real advantages. So is the cost: someone has to understand the upgrades, the
+sizing, the edge cases, and the failure modes. For an observatory of this magnitude, that ownership is not a burden; it is part of what makes the platform
+sustainable.
