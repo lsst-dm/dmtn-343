@@ -1,7 +1,7 @@
 \section{GitOps}
 
-The platform is managed as code. Every change---a dashboard, an alert rule, the scraping
-configuration, a retention policy---goes through a review process before it reaches production.
+The platform is managed as code. Every change, a dashboard, an alert rule, the scraping
+configuration, a retention policy, goes through a review process before it reaches production.
 Nothing is edited directly on the cluster \cite{lsst-it-k8s-cookbook}.
 
 Changes move through staged environments: development, testing, and production. This matters for
@@ -24,14 +24,36 @@ Prometheus has some built-in support for loading rules from files, but wiring th
 workflow with proper staging, review, and promotion is not something that comes out of the box
 \cite{lsst-it-k8s-cookbook,prometheus-alerting,prometheus-alertmanager}. The team built the same
 kind of templating layer for alert rules, so they follow the same path as everything else. Each
-rule carries enough context---a summary, a description, and a receiver---to be useful to whoever
+rule carries enough context, a summary, a description, and a receiver, to be useful to whoever
 gets paged at night. Rules that are vague or noisy get fixed through the same review process, so
 quality improves over time.
 
-\subsection{Labels as the Interface}
-
-Labels are how independent pieces connect. A service becomes visible to the observability platform
-by following label conventions, not by asking someone to manually add it to a config file. This
-helps the platform scale: new services can be onboarded without special cases, and the platform
-discovers what to watch by looking for the right labels
-\cite{lsst-it-k8s-cookbook,prometheus-operator}.
+\begin{lstlisting}[
+    basicstyle=\ttfamily\small,
+    breaklines=true,
+    frame=single,
+    backgroundcolor=\color{gray!10},
+    rulecolor=\color{gray!50},
+    caption={Alert rule for low PVC free space}
+]
+groups:
+  - name: k8s.rules
+    rules:
+      - alert: PVCLowFreeSpace
+        annotations:
+          summary: PVC {{ $labels.persistentvolumeclaim }} is low on free space
+          description: >
+            PVC {{ $labels.persistentvolumeclaim }} in namespace {{ $labels.namespace }}
+            has less than 20% free space.
+        expr: |
+          (kubelet_volume_stats_available_bytes{job="kubelet",metrics_path="/metrics",namespace=~".*"}
+          / kubelet_volume_stats_capacity_bytes{job="kubelet",metrics_path="/metrics",namespace=~".*"}) < 0.20
+          and kubelet_volume_stats_used_bytes{job="kubelet",metrics_path="/metrics",namespace=~".*"} > 0
+        for: 2m
+        labels:
+          prod: "true"
+          severity: warning
+          node_name: '{{ $labels.prom_cluster }}'
+          device: null
+          service_name: null
+\end{lstlisting}
