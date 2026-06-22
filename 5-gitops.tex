@@ -1,0 +1,37 @@
+\section{GitOps}
+
+The platform is managed as code. Every change---a dashboard, an alert rule, the scraping
+configuration, a retention policy---goes through a review process before it reaches production.
+Nothing is edited directly on the cluster \cite{lsst-it-k8s-cookbook}.
+
+Changes move through staged environments: development, testing, and production. This matters for
+an observatory because you need to know not just what changed, but why. The history of every
+decision is preserved and reviewable.
+
+\subsection{Dashboards as Code}
+
+Grafana does not natively support managing dashboards through GitOps; dashboards are normally
+created and saved through the UI. To solve this, the team built a templating layer that takes
+dashboard definitions from the repository and automatically deploys them to the cluster, where
+Grafana picks them up \cite{lsst-it-k8s-cookbook}. This means a dashboard can be reviewed before
+it goes out, reverted if it breaks something, and understood later by someone who was not there
+when it was created. Dashboards are not personal views saved in someone's account; they are
+operational artifacts shared by the whole team.
+
+\subsection{Alert Rules as Code}
+
+Prometheus has some built-in support for loading rules from files, but wiring that into a GitOps
+workflow with proper staging, review, and promotion is not something that comes out of the box
+\cite{lsst-it-k8s-cookbook,prometheus-alerting,prometheus-alertmanager}. The team built the same
+kind of templating layer for alert rules, so they follow the same path as everything else. Each
+rule carries enough context---a summary, a description, and a receiver---to be useful to whoever
+gets paged at night. Rules that are vague or noisy get fixed through the same review process, so
+quality improves over time.
+
+\subsection{Labels as the Interface}
+
+Labels are how independent pieces connect. A service becomes visible to the observability platform
+by following label conventions, not by asking someone to manually add it to a config file. This
+helps the platform scale: new services can be onboarded without special cases, and the platform
+discovers what to watch by looking for the right labels
+\cite{lsst-it-k8s-cookbook,prometheus-operator}.

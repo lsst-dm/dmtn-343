@@ -1,0 +1,25 @@
+\section{Metrics Pipeline and Long-Term Storage}
+
+Metrics start close to where things happen. Kubernetes components, nodes, workloads, network
+devices, storage systems, and applications all produce time-series data. The platform collects this
+through a combination of exporters and monitors, some built into the stack, some added for specific
+systems like SNMP devices or facility services.
+
+Prometheus handles the collection and short-term storage. It scrapes targets, evaluates alert
+rules, and makes metrics available for immediate incident response
+\cite{lsst-it-k8s-cookbook,prometheus-operator,prometheus-alerting}. The configuration is adapted
+for Rubin, with the right labels, selectors, and alerting choices, but the underlying tooling comes
+from the Prometheus ecosystem, which is widely used and well understood.
+
+For anything beyond the short incident-response window, Mimir provides long-term storage. It is a
+horizontally scalable backend that speaks the same query language as Prometheus, so the experience
+for operators and dashboard authors does not change \cite{grafana-mimir}. Under the hood, it uses
+object storage and runs as a distributed service with separate components for ingestion, querying,
+compaction, and caching.
+
+This gives the team two distinct capabilities. Recent metrics support fast triage---you can see
+what is happening right now and what changed in the last hour. Older metrics support a different
+kind of question: how does tonight compare to last month? Is this cluster behaving differently from
+the others? Is this a new problem or a slow drift that has been building for weeks? That longer
+view is especially important during commissioning, when the baseline is still being established and
+slow changes are easy to miss.

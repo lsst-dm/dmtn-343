@@ -1,0 +1,78 @@
+\section{Platform Architecture}
+
+The observability platform is not a single monitoring tool. It is a distributed system where each
+environment produces its own signals: metrics from nodes, workloads, and control-plane components;
+logs from pods and hosts; cluster events; and telemetry from storage, networking, Kafka, databases,
+and facility services. Those signals are collected close to where they are produced, tagged with
+site and cluster context, and made available through shared backends and dashboards.
+
+\subsection{Metrics}
+
+Prometheus handles metric scraping. Instead of maintaining a static list of targets by hand, the
+platform uses discovery labels; a service becomes visible to the monitoring system just by following
+the expected conventions. The same idea applies to alert rules, probes, and scrape configs: the
+platform finds what it should watch by looking for the right labels \cite{prometheus-operator}.
+
+For long-term storage, Mimir serves as Prometheus's scalable backend. This means metrics are not
+discarded after a few days; you can compare behavior across nights, clusters, and commissioning
+periods. Mimir runs as a distributed service with separate components for ingestion, querying,
+compaction, caching, and object-storage access \cite{grafana-mimir}. At this scale, the
+observability system is not lightweight. The data it produces needs to be planned for, not just
+collected.
+
+\subsection{Logs}
+
+Alloy runs close to the nodes and collects host logs, pod logs, and cluster events. Before sending
+anything to Loki, it enriches each log line with metadata: namespace, pod, container, application,
+severity \cite{lsst-it-k8s-cookbook,grafana-loki-alloy}. But Kubernetes is not the only source.
+Network devices, firewalls, power systems, and other facility equipment connected to the observatory
+network also send logs, and those flow into the same pipeline. Loki is also distributed with
+gateways, distributors, ingesters, queriers, query frontends, index gateways, compactors, and
+caches \cite{lsst-it-k8s-cookbook,grafana-loki}. The end result is one place to search logs across
+all clusters and all connected systems, with enough labels to narrow things down quickly.
+
+\subsection{Grafana}
+
+Grafana is where the raw signals turn into actual questions: which cluster is unhealthy, which
+namespace is eating resources, whether Ceph is under pressure, whether Kafka latency is climbing,
+whether a network device is dropping packets, or whether something in the facility---power,
+cooling---is part of the problem. The dashboards are treated as part of the operational model, not
+as decoration.
+
+\subsection{Alerting}
+
+Alerts are small contracts: what condition matters, how urgent it is, who should get it, and what
+context they need to start debugging. The goal is not to alert on everything. It is to alert when
+someone actually needs to do something, and give them enough to move quickly.
+
+\subsection{Discovery}
+
+One of the quieter but more important parts of the platform is how it finds hosts to monitor.
+There is no hand-maintained list. Instead, the platform queries the Puppet instances that manage
+the observatory's infrastructure. Every time a new host is provisioned through the
+infrastructure-as-code process, it becomes visible to the observability platform automatically---no
+code changes, no manual additions, no tickets to update a configuration file.
+
+This matters more than it might seem. In an environment that is still growing and changing, a
+static host list becomes wrong almost immediately. A node brought up for commissioning, a host
+added for a new instrument---all of them appear in the platform on their own, because the source of
+truth is the infrastructure itself, not a separate list that someone has to remember to keep
+current.
+
+Services follow a different path, using Kubernetes-native discovery through label conventions. But
+for the physical and virtual hosts that make up the observatory network, the answer is automatic:
+provision the host, and the platform finds it.
+
+\subsection{Controlled Change}
+
+Every configuration change---dashboards, alert rules, retention policies, ingress config, label
+selectors, and so on---moves through staged environments before reaching production
+\cite{lsst-it-k8s-cookbook}. This means operational knowledge is versioned. A dashboard can be
+reviewed, promoted, or rolled back. An alert can be tuned after an incident. A retention policy
+can be adjusted when data volume grows. This is especially important during commissioning, when
+both the system and the questions asked about it are constantly changing.
+
+The platform does not hide its complexity. It makes it explicit and reproducible, which allows it
+to keep improving rather than slowly becoming a pile of manual fixes.
+
+% \textbf{TODO: ADD ARCHITECTURE DIAGRAM HERE}

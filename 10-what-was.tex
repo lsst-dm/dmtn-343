@@ -1,0 +1,29 @@
+\section{What Was Hard}
+
+\subsection{The Complexity Is Real}
+
+The stack has many moving parts: deployment bundles, configuration overlays, custom resources,
+object storage, ingress rules, secrets, and more. This is not a small installation, and there is
+no point pretending otherwise. The complexity is the cost of having a platform that covers many
+systems and can still be reviewed, versioned, and rolled back.
+
+One lesson worth stating clearly: open source does not mean low effort. It means the effort moves
+to the team. Someone has to understand upgrades, chart compatibility, storage sizing, label
+conventions, retention policies, and user support. That is a good trade when the team needs control
+and flexibility, but it should not be described as the easy path.
+
+\subsection{Cardinality, Retention, and Cost}
+
+Metrics and logs grow faster than expected. Labels are essential, but labels with too many unique
+values make systems slow and expensive. Logs are valuable, but high ingestion rates with long
+retention eat storage quickly. Managing this is ongoing work: setting ingestion limits, tuning
+retention, sizing caches, watching query performance. A slow observability system is not useful
+during an incident. The platform has to stay fast enough to be trusted when it matters most.
+
+\subsection{Human Adoption}
+
+Dashboards are only useful when people actually use them. That requires more than good tooling; it
+requires naming things clearly, showing people where to look during real problems, and revisiting
+dashboards that have stopped answering relevant questions. A platform that nobody looks at during
+an incident is just a collection of graphs. The social side of adoption is as important as the
+technical side.

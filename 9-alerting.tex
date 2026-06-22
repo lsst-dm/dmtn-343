@@ -1,0 +1,26 @@
+\section{Alerting}
+
+Alerts are a part of observability that interrupts people. That makes them different from
+dashboards---a bad dashboard is inconvenient, but a bad alert wakes someone up at 3\,am for the
+wrong reason, or worse, stays silent when something actually needs attention.
+
+The platform stores alert rules as code, following the same review and promotion process as
+everything else \cite{lsst-it-k8s-cookbook,prometheus-alerting,prometheus-alertmanager}. But the
+technical side is the easier part. The harder part is writing alerts that are actually useful.
+
+A good alert is not just a PromQL expression that fires when a number crosses a threshold
+\cite{prometheus-alerting,prometheus-alertmanager}. It carries enough context to start a diagnosis:
+what the condition is, how urgent it is, who should receive it, and where to look first. Without
+that, an alert becomes noise---something that fires, gets acknowledged, and gets ignored. With it,
+an alert is the first step of a structured response.
+
+There is also a timing problem specific to night operations. During an observing shift, not
+everything that is wrong needs immediate human attention. A saturated disk, a failed exporter, a
+flapping network link, and a degraded storage component are serious, but they are not all the same
+kind of serious. The alerting system needs to reflect that, routing the right signal to the right
+person at the right time \cite{prometheus-alertmanager}, without flooding the on-call operator with
+everything at once. Getting that routing right is ongoing work, and it improves the same way
+everything else does: through real incidents, honest postmortems, and small adjustments that
+accumulate over time.
+
+% \textbf{TODO: ADD ALERTING STATISTICS HERE}

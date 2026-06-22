@@ -1,0 +1,45 @@
+\section{Requirements and Design Principles}
+
+The requirements for the platform came from two directions. On the technology side, we needed
+scalable ingestion, long retention, Kubernetes-native service discovery, log aggregation, alerting,
+and dashboards. On the operations side, the need was harder to pin down but just as important: a
+common language between teams. A graph is only useful when the right people understand what it
+means and what to do next. On top of that, our infrastructure spans many types of hardware from
+different vendors, each with its own quirks, and our users have very different expectations of what
+the platform should show them. That diversity made the dashboard design particularly difficult;
+there was no single answer that worked for everyone.
+
+The DevOps operations rely on a set of core design principles, and any observability stack we built
+had to reflect them from the ground up \cite{lsst-it-k8s-cookbook,prometheus-operator,grafana-loki-alloy,grafana-loki}.
+
+\begin{center}
+\begin{minipage}{\linewidth}
+\renewcommand{\arraystretch}{1.3}
+\small
+\textbf{Table 1. Core Design Principles and Their Operational Rationale}\\[4pt]
+\begin{tabular}{p{0.22\linewidth} p{0.36\linewidth} p{0.32\linewidth}}
+\hline
+\textbf{Principle} & \textbf{Implementation pattern in the platform} & \textbf{Why it matters for operations} \\
+\hline
+\textbf{Configuration as code} &
+  Keep dashboards, alert rules, Helm values, and overlays in Git. &
+  Changes are reviewed, promoted, and recovered like the rest of the infrastructure. \\[4pt]
+\textbf{Open-source first} &
+  Use Prometheus, Grafana, Loki, Mimir, Alloy, Fleet, exporters, and Kubernetes ecosystem tools. &
+  The team can inspect the system, tune it, and avoid a single vendor dependency. \\[4pt]
+\textbf{Kubernetes-native discovery} &
+  Use ServiceMonitor, PodMonitor, Probe, and label selectors. &
+  Teams can onboard services using conventions rather than one-off manual edits. \\[4pt]
+\textbf{Multi-site and multi-cluster awareness} &
+  Carry labels such as \texttt{site} and \texttt{cluster} into metrics and logs. &
+  Operators can compare behavior across environments and avoid guessing where a signal came from. \\[4pt]
+\textbf{Logs and metrics together} &
+  Collect Kubernetes logs, node logs, events, and metrics into systems that can be queried from Grafana. &
+  Incidents usually need both time-series trends and exact log messages. \\[4pt]
+\textbf{Room for constant improvement} &
+  Treat dashboards and alerts as living assets, not as a finished project. &
+  Commissioning and operations create new questions, so the platform must keep changing. \\
+\hline
+\end{tabular}
+\end{minipage}
+\end{center}
