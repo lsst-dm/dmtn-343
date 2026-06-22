@@ -232,13 +232,13 @@ INTEGERS { nameptr namesleft numnames }
 
 FUNCTION {format.url}
 {
-  url empty$
-    { doi empty$
+  doi empty$
+    { url empty$
       'skip$
-      { "DOI: \url{https://doi.org/" doi * "}" * output }
+      { "\url{" url * "}" * output }
     if$
     }
-    { "\url{" url * "}" * output }
+    { "DOI: \url{https://doi.org/" doi * "}" * output }
   if$
 }
 
